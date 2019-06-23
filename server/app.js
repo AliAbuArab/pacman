@@ -93,7 +93,7 @@ io.on('connection', socket => {
   });
 
   socket.on('ghostsMove', ghosts => {
-    io.to('game').emit('ghostsMove', ghosts);
+    socket.broadcast.to('game').emit('ghostsMove', ghosts);
   });
 
   socket.on('disconnect', () => {

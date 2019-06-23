@@ -22,11 +22,10 @@ const config = {
 const offset = 16;
 const port = 8080;
 const questionTimeout = 17000;
+const adminNumber = 1;
 let map;
 let scene;
 let cursors;
-let player1;
-let player2;
 let worldLayer;
 let ghostsGroup;
 let candiesGroup;
@@ -36,6 +35,8 @@ let questionCnt = 0;
 let candiesCnt = 0;
 let socket;
 let ready = false;
+let me;
+let enemy;
 let keyA, keyW, keyS, keyD;
 const ghosts = [];
 const ghostsTexture = ['blue-ghost.0','orange-ghost.0','pink-ghost.0','red-ghost.0'];
@@ -102,48 +103,61 @@ function create() {
   fetch('/questions').then((response) => { response.json().then(q =>  questions = q)});
 
   // init game for one player or two players
-  initGame();
+  if (numberOfPlayers == 1) initGameForOne();
+  else initGameForTwo();
 }
 
 // Runs once per frame for the duration of the scene
 function update() {
   if (!ready) return;
 
-  player1.animate();
-  if (player2)  player2.animate();
+  me.animate();
+  if (enemy) enemy.animate();
 
-  if (cursors.left.isDown)        player1.go(Phaser.LEFT);
-  else if (cursors.right.isDown)  player1.go(Phaser.RIGHT);
-  else if (cursors.up.isDown)     player1.go(Phaser.UP);
-  else if (cursors.down.isDown)   player1.go(Phaser.DOWN);
-  if (player2) {
-    if (keyA.isDown)              player2.go(Phaser.LEFT);
-    else if (keyW.isDown)         player2.go(Phaser.UP);
-    else if (keyS.isDown)         player2.go(Phaser.DOWN);
-    else if (keyD.isDown)         player2.go(Phaser.RIGHT);
+  if (cursors.left.isDown)        me.go(Phaser.LEFT);
+  else if (cursors.right.isDown)  me.go(Phaser.RIGHT);
+  else if (cursors.up.isDown)     me.go(Phaser.UP);
+  else if (cursors.down.isDown)   me.go(Phaser.DOWN);
+  if (enemy) {
+    if (keyA.isDown)              enemy.go(Phaser.LEFT);
+    else if (keyW.isDown)         enemy.go(Phaser.UP);
+    else if (keyS.isDown)         enemy.go(Phaser.DOWN);
+    else if (keyD.isDown)         enemy.go(Phaser.RIGHT);
   }
 
-  if (player1.isCollide) player1.stopAnimate();
-  if (player2 && player2.isCollide) player2.stopAnimate();
+  if (me.isCollide) me.stopAnimate();
+  if (enemy && enemy.isCollide) enemy.stopAnimate();
 
   for (let ghost of ghosts) ghost.go();
+
+  if (numberOfPlayers == 2 && me.id == adminNumber) {
+    const ghostsMovement = [];
+    for (let ghost of ghosts) {
+      ghostsMovement.push({ 
+        frame: ghost.sprite.frame.name,
+        x: ghost.sprite.x,
+        y: ghost.sprite.y
+      });
+    }
+    socket.emit('ghostsMove', ghostsMovement);
+  }
 }
 
 // add collision between objects
 function addColliders() {
-  scene.physics.add.overlap(player1.sprite, ghostsGroup, (player, ghost) => {
+  scene.physics.add.overlap(me.sprite, ghostsGroup, (player, ghost) => {
     let g;
     for (let gg of ghosts) if (gg.sprite == ghost) g = gg;
-    playerCollideWithGhost(player1, g);
+    playerCollideWithGhost(me, g);
   });
 
-  scene.physics.add.overlap(player1.sprite, candiesGroup, (player, candy) => {
-    playerCollideWithCandy(player1, candy);
+  scene.physics.add.overlap(me.sprite, candiesGroup, (player, candy) => {
+    playerCollideWithCandy(me, candy);
   });
 
-  scene.physics.add.overlap(player1.sprite, cherriesGroup, (player, cherry) => {
+  scene.physics.add.overlap(me.sprite, cherriesGroup, (player, cherry) => {
     cherry.disableBody(true, true);
-    ateCherry(player1);
+    ateCherry(me);
   });
 
   // if (player2) {
@@ -171,9 +185,10 @@ function addPlayer(name, number) {
   let angle;
   if (number == 1) angle = 0;
   else angle = 180;
-  player1 = new Player(number, name, scene, position, angle);
-  scene.physics.add.collider(player1.sprite, worldLayer, () => player1.isCollide = true);
+  const player = new Player(number, name, scene, position, angle);
+  scene.physics.add.collider(player.sprite, worldLayer, () => player.isCollide = true);
   document.getElementById('player' + number + '-name').innerHTML = name;
+  return player;
 }
 
 // add ghosts and candies to the maze
@@ -261,13 +276,13 @@ function addAnimations() {
 }
 
 function restart() {
-  player1.restart();
-  document.getElementById('player1-lifes').innerHTML = player1.lifes;
-  document.getElementById('player1-points').innerHTML = player1.points;
-  if (player2) {
-    player2.restart();
-    document.getElementById('player2-lifes').innerHTML = player2.lifes;
-    document.getElementById('player2-points').innerHTML = player2.points;
+  me.restart();
+  document.getElementById('player1-lifes').innerHTML = me.lifes;
+  document.getElementById('player1-points').innerHTML = me.points;
+  if (enemy) {
+    enemy.restart();
+    document.getElementById('player2-lifes').innerHTML = enemy.lifes;
+    document.getElementById('player2-points').innerHTML = enemy.points;
   }
   for (let ghost of ghosts) ghost.restart();
   map.filterObjects("Objects", value => {
@@ -315,10 +330,10 @@ function playerCollideWithGhost(player, ghost) {
   if (!player.setLifes(player.lifes - 1))
   {
     if (player.id == 1) {
-      if (player2) alert(`${player2.name} is the winner`);
+      if (enemy) alert(`${enemy.name} is the winner`);
       else alert('Loser');
     }
-    else alert(`${player1.name} is the winner`);
+    else alert(`${me.name} is the winner`);
     restart();
   }
 }
@@ -327,7 +342,7 @@ function playerCollideWithCandy(player, candy) {
   candy.disableBody(true, true);
   player.addPoint(1);
   if (!--candiesCnt) {     
-    player2 && player2.points > player1.points ? alert(`${player2.name} winner`) : alert(`${player1.name} winner`);
+    enemy && enemy.points > me.points ? alert(`${enemy.name} winner`) : alert(`${me.name} winner`);
     restart();
   }
 }
@@ -367,36 +382,50 @@ function initDesign() {
   document.getElementById('game-container').style.transform = 'translate(-50%,-100%)';
 }
 
-function initGame() {
-  if (numberOfPlayers == 1) {
-    addPlayer(name, 1);
-    addColliders();
-    for (let ghost of ghosts) ghost.enabled = true;
-  } else {
-    socket = io('', { query: 'name=' + name });
-    socket.emit('join', { email, name }, error => {
-      if (error) {
-        alert(error);
-        location.href = '/';
-      }
-    });
+function initGameForOne() {
+  me = addPlayer(name, 1);
+  addColliders();
+  updateGhostsToNotEaten();
+}
+
+function initGameForTwo() {
+  socket = io('', { query: 'name=' + name });
+
+  socket.emit('join', { email, name }, error => {
+    if (error) {
+      alert(error);
+      location.href = '/';
+    }
+  });
     
-    socket.on('disconnected', userName => console.log(userName + ' disconnected'));
-    socket.on('playerHasJoined', playerName => console.log(playerName + ' has joiend'));
-    socket.on('players', players => {
-      if (players.length == 2) {
-        const player = players.find(player => player.email !== email);
-        const player1Number = player.number == 1 ? 2 : 1;
-        const player2Number = player.number;
-        // add players
-        addPlayer(name, player1Number);
-        addPlayer(player.name, player2Number);
-        // manage colliders
-        addColliders();
-        // update method can be execute now
-        ready = true;
+  socket.on('disconnected', userName => console.log(userName + ' disconnected'));
+  
+  socket.on('playerHasJoined', playerName => {
+    console.log(playerName + ' has joiend');
+    updateGhostsToNotEaten();
+  });
+
+  socket.on('players', players => {
+    if (players.length != 2) return; 
+    const player = players.find(player => player.email !== email);
+    const myNumber = player.number == 1 ? 2 : 1;
+    const enemyNumber = player.number;
+    // add players
+    me = addPlayer(name, myNumber);
+    enemy = addPlayer(player.name, enemyNumber);
+    // manage colliders
+    addColliders();
+    // update method can be execute now
+    ready = true;
+  });
+  socket.on('ghostsMove', ghostsMovement => {
+    for (let move of ghostsMovement) {
+      for (let ghost of ghosts) {
+        if (ghost.sprite.frame.name == move.frame) {
+          ghost.sprite.x = move.x;
+          ghost.sprite.y = move.y;
+        }
       }
-    });
-    socket.on('ghostsMove', ghosts => console.log(ghosts));
-  }
+    }
+  });
 }
