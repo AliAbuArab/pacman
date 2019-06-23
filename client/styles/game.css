@@ -1,0 +1,42 @@
+html,
+body,
+#game-container {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-image: url('../images/background.jpg');
+  background-size: cover;
+}
+
+#game-container {
+  border: 20px solid black;
+  border-radius: 5px;
+  max-width: 896px;
+  max-height: 640px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#player1, #player2 {
+  min-height: 680px;
+  background: rgba(0,0,0,.77);
+  width: 230px;
+  border-radius: 5px;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+}
+
+#player1 {
+  left: calc(50% - 590px);
+}
+
+#player2 {
+  right: calc(50% - 820px);
+}

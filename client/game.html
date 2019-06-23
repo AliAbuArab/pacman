@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.ico' />
+  <title>Leopard Pacman</title>
+  <link rel="stylesheet" href="/styles/game.css">
+  <script defer src="/socket.io/socket.io.js"></script>
+  <script defer src="/scripts/phaser.min.js"></script>
+  <script defer src="/scripts/game.js" type="module"></script>
+</head>
+<body>
+  <section id="player1">
+    <h2 id="player1-name"></h2>
+    <p>Points: <span id="player1-points">0</span></p>
+    <p>Lifes: <span id="player1-lifes">3</span></p>
+    <p id="player1-question"></p>
+  </section>
+  <section id="player2">
+      <h2 id="player2-name"></h2>
+      <p>Points: <span id="player2-points">0</span></p>
+      <p>Lifes: <span id="player2-lifes">3</span></p>
+      <p id="player2-question"></p>
+  </section>
+  <section id="game-container"></section>
+</body>
+</html>

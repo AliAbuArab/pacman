@@ -1,0 +1,24 @@
+{
+  "name": "leopard",
+  "version": "1.0.0",
+  "description": "Computer Scince Project",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "nodemon server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abziz/Leopard.git"
+  },
+  "author": "Ali Abu Arab, Salam Aslah, Hamza Abu Altaieh, Anhar Sabih",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Abziz/Leopard/issues"
+  },
+  "homepage": "https://github.com/Abziz/Leopard#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^1.19.1",
+    "socket.io": "^2.2.0"
+  }
+}

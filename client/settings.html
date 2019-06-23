@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel='shortcut icon' type='image/x-icon' href='/images/favicon.ico' />
+  <title>Leopard Pacman</title>
+  <link rel="stylesheet" href="/styles/settings.css">
+  <script defer src="/scripts/post.js"></script>
+  <script defer src="/scripts/settings.js"></script>
+</head>
+<body>
+  <div id="container">
+    <main>
+      <table>
+        <thead>
+          <th>id</th>
+          <th>question</th>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+      <section>
+        <button id="btnAdd" onclick="addOrEdit(1)">Add</button>
+        <button id="btnEdit" onclick="addOrEdit(2)">Edit</button>
+        <button id="btnRemove" onclick="remove()">Remove</button>
+        <button id="btnCancel">Cancel</button>
+      </section>
+    </main>
+    <div id="divAdd" style="display: none;">
+      <input type="number" id="numOfQuestion" onkeyup="fillField()">
+      <input type="text" id="txtQuestion" placeholder="Question">
+      <input type="text" id="txtOption-1" placeholder="Answer 1">
+      <input type="text" id="txtOption-2" placeholder="Answer 2">
+      <input type="text" id="txtOption-3" placeholder="Answer 3">
+      <input type="text" id="txtOption-4" placeholder="Answer 4">
+      <input type="number" id="numOfCorrectAns" placeholder="0, 1, 2, 3">
+      <input type="number" id="point" placeholder="100">
+      <hr>
+      <button id="btnQuestion" onclick="addOrUpdateQuestion()">Add</button>
+      <button id="btnCancelQuestion" onclick="cancelQuestion()">Cancel</button>
+    </div>
+    <div id="divRemove" style="display: none;">
+      <input type="number" id="numOfDeleteQuestion">
+      <hr>
+      <button id="btnQuestion" onclick="removeQuestion()">Remove</button>
+      <button id="btnCancelQuestion" onclick="cancelRemoveQuestion()">Cancel</button>
+    </div>
+  </div>
+</body>
+</html>
