@@ -1,5 +1,6 @@
 export default class Ghost {
-  constructor(sprite, position, layer, map, scene) {
+  constructor(id, sprite, position, layer, map, scene) {
+    this.id = id;
     this.sprite = sprite;
     this.position = position;
     this.speed = 1;
@@ -39,6 +40,7 @@ export default class Ghost {
   }
 
   goTo(dir) {
+    if (!this.enabled) return;
     switch (dir) {
       case Phaser.LEFT:
         this.sprite.setFlipX(true);
@@ -46,7 +48,7 @@ export default class Ghost {
         this.answer.x -= this.speed;
         break;
       case Phaser.RIGHT:
-          this.sprite.setFlipX(false);
+        this.sprite.setFlipX(false);
         this.sprite.x += this.speed;
         this.answer.x += this.speed;
         break;

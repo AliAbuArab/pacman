@@ -92,9 +92,9 @@ io.on('connection', socket => {
     callback();
   });
 
-  socket.on('ghostsMove', ghosts => {
-    socket.broadcast.to('game').emit('ghostsMove', ghosts);
-  });
+  socket.on('pacmanMove', dir => socket.broadcast.to('game').emit('pacmanMove', dir));
+  socket.on('ghostsMove', ghosts => socket.broadcast.to('game').emit('ghostsMove', ghosts));
+  socket.on('ateCherry', question => socket.broadcast.to('game').emit('ateCherry', question));
 
   socket.on('disconnect', () => {
     console.log(name + ' disconnected');

@@ -20,7 +20,6 @@ const config = {
   }
 };
 const offset = 16;
-const port = 8080;
 const questionTimeout = 17000;
 const adminNumber = 1;
 let map;
@@ -37,12 +36,13 @@ let socket;
 let ready = false;
 let me;
 let enemy;
-let keyA, keyW, keyS, keyD;
+let question;
 const ghosts = [];
 const ghostsTexture = ['blue-ghost.0','orange-ghost.0','pink-ghost.0','red-ghost.0'];
 const name = localStorage.getItem('name');
 const email = localStorage.getItem('email');
 const numberOfPlayers = localStorage.getItem('number-of-players');
+const $question = document.getElementById('question');
 const game = new Phaser.Game(config);
 
 
@@ -75,10 +75,6 @@ function create() {
   // manage animations
   addAnimations();
   cursors = scene.input.keyboard.createCursorKeys();
-  keyW = scene.input.keyboard.addKey('W');
-  keyA = scene.input.keyboard.addKey('A');
-  keyS = scene.input.keyboard.addKey('S'); 
-  keyD = scene.input.keyboard.addKey('D');
 
   // // Debug graphics
   scene.input.keyboard.once('keydown_X', event => {
@@ -118,29 +114,11 @@ function update() {
   else if (cursors.right.isDown)  me.go(Phaser.RIGHT);
   else if (cursors.up.isDown)     me.go(Phaser.UP);
   else if (cursors.down.isDown)   me.go(Phaser.DOWN);
-  if (enemy) {
-    if (keyA.isDown)              enemy.go(Phaser.LEFT);
-    else if (keyW.isDown)         enemy.go(Phaser.UP);
-    else if (keyS.isDown)         enemy.go(Phaser.DOWN);
-    else if (keyD.isDown)         enemy.go(Phaser.RIGHT);
-  }
 
   if (me.isCollide) me.stopAnimate();
   if (enemy && enemy.isCollide) enemy.stopAnimate();
-
-  for (let ghost of ghosts) ghost.go();
-
-  if (numberOfPlayers == 2 && me.id == adminNumber) {
-    const ghostsMovement = [];
-    for (let ghost of ghosts) {
-      ghostsMovement.push({ 
-        frame: ghost.sprite.frame.name,
-        x: ghost.sprite.x,
-        y: ghost.sprite.y
-      });
-    }
-    socket.emit('ghostsMove', ghostsMovement);
-  }
+  if (me.id == adminNumber) moveGhosts();
+  if (numberOfPlayers == 2) socket.emit('pacmanMove', me.prevMovement);
 }
 
 // add collision between objects
@@ -157,25 +135,25 @@ function addColliders() {
 
   scene.physics.add.overlap(me.sprite, cherriesGroup, (player, cherry) => {
     cherry.disableBody(true, true);
-    ateCherry(me);
+    ateCherry();
   });
 
-  // if (player2) {
-  //   scene.physics.add.overlap(player2.sprite, ghostsGroup, (player, ghost) => { 
-  //     let g;
-  //     for (let gg of ghosts) if (gg.sprite == ghost) g = gg;
-  //     playerCollideWithGhost(player2, g);
-  //   });
+  if (enemy) {
+    scene.physics.add.overlap(enemy.sprite, ghostsGroup, (player, ghost) => { 
+      let g;
+      for (let gg of ghosts) if (gg.sprite == ghost) g = gg;
+      playerCollideWithGhost(enemy, g);
+    });
     
-  //   scene.physics.add.overlap(player2.sprite, candiesGroup, (player, candy) => {
-  //     playerCollideWithCandy(player2, candy);
-  //   });
+    scene.physics.add.overlap(enemy.sprite, candiesGroup, (player, candy) => {
+      playerCollideWithCandy(enemy, candy);
+    });
 
-  //   scene.physics.add.overlap(player2.sprite, cherriesGroup, (player, cherry) => {
-  //     cherry.disableBody(true, true);
-  //     ateCherry(player2);
-  //   });
-  // }
+    scene.physics.add.overlap(enemy.sprite, cherriesGroup, (player, cherry) => {
+      cherry.disableBody(true, true);
+      ateCherry(enemy);
+    });
+  }
 }
 
 // add player to the maze
@@ -203,6 +181,7 @@ function addGhostsAndCandies() {
       let pixelX = currentTile.pixelX;
       let pixelY = currentTile.pixelY;
       let ghost = new Ghost(
+        ghostsTexture[i],
         scene.physics.add.sprite(pixelX, pixelY, 'atlas', ghostsTexture[i]).setOrigin(0).setDepth(1),
         new Phaser.Geom.Point(pixelX, pixelY),
         worldLayer, map, scene
@@ -292,36 +271,41 @@ function restart() {
   });
 }
 
-function ateCherry(player) {
-  let dom = 'player' + player.id + '-question';
+function ateCherry() {
+  if (me.id != adminNumber) return;
   if (!questions.length) {
     alert('No questions');
     return;
   }
   const choosed = Math.floor( Math.random() * (questions.length));
-  player.question = questions[choosed];
+  question = questions[choosed];
   questions.splice(choosed, 1);
-  document.getElementById(dom).innerHTML = player.question.question;
-  updateGhostsToEaten(player.question);
+  putQuestion(question);
+  socket.emit('ateCherry', question);
+}
+
+function putQuestion(question) {
+  updateGhostsToEaten(question.options);
+  $question.innerHTML = question.question;
   questionCnt++;
   setTimeout(() => {
     if (!--questionCnt) updateGhostsToNotEaten();
-    document.getElementById(dom).innerHTML = '';
+    $question.innerHTML = '';
   }, questionTimeout);
 }
 
 function playerCollideWithGhost(player, ghost) {
-  const question = player.question;
+  ghost.restart();
   if (ghost.isEaten && question) {
     const correctAns = question.options[question.answer];
     const ghostAns = ghost.answer.text;
-    ghost.restart();
     if (correctAns == ghostAns) {
       player.addPoint(question.point);
       updateGhostsToNotEaten();
-      document.getElementById('player' + player.id + '-question').innerHTML = '';
+      $question.innerHTML = '';
     }
     else {
+      alert('wrong answer');
       player.subPoint(question.point);
       ghost.enabled = false;
     }
@@ -347,11 +331,11 @@ function playerCollideWithCandy(player, candy) {
   }
 }
 
-function updateGhostsToEaten(question) {
+function updateGhostsToEaten(answers) {
   let i = 0;
   for (let ghost of ghosts) {
     ghost.sprite.setTexture('atlas', 'gost-afraid.0');
-    ghost.answer.text = question.options[i++];
+    ghost.answer.text = answers[i++];
     ghost.isEaten = true;
   }
 }
@@ -369,17 +353,7 @@ function updateGhostsToNotEaten() {
 function initDesign() {
   if (numberOfPlayers == 2) return; 
   document.getElementById('player2').style.display = 'none';
-  document.getElementById('player1').style.top = '10px';
-  document.getElementById('player1').style.left = '50%';
-  document.getElementById('player1').style.transform = 'translate(-50%)';
-  document.getElementById('player1').style.minHeight = '120px';
-  document.getElementById('player1').style.width = '936px';
-  document.getElementById('player1-name').style.marginTop = '8px';
-  document.getElementById('player1-points').style.marginRight = '30px';
-  document.querySelector('#player1 p:nth-child(2)').style.display = 'inline';
-  document.querySelector('#player1 p:nth-child(3)').style.display = 'inline';
-  document.getElementById('game-container').style.top = '98%';
-  document.getElementById('game-container').style.transform = 'translate(-50%,-100%)';
+  document.getElementById('player1').style.width = '100%';
 }
 
 function initGameForOne() {
@@ -400,10 +374,7 @@ function initGameForTwo() {
     
   socket.on('disconnected', userName => console.log(userName + ' disconnected'));
   
-  socket.on('playerHasJoined', playerName => {
-    console.log(playerName + ' has joiend');
-    updateGhostsToNotEaten();
-  });
+  socket.on('playerHasJoined', playerName => console.log(playerName + ' has joiend'));
 
   socket.on('players', players => {
     if (players.length != 2) return; 
@@ -417,15 +388,36 @@ function initGameForTwo() {
     addColliders();
     // update method can be execute now
     ready = true;
+    // start moving the ghosts
+    updateGhostsToNotEaten();
   });
+
   socket.on('ghostsMove', ghostsMovement => {
-    for (let move of ghostsMovement) {
-      for (let ghost of ghosts) {
-        if (ghost.sprite.frame.name == move.frame) {
-          ghost.sprite.x = move.x;
-          ghost.sprite.y = move.y;
-        }
-      }
-    }
+    for (let { id, movement } of ghostsMovement)
+      for (let ghost of ghosts)
+        if (ghost.id == id) 
+          ghost.goTo(movement);
   });
+
+  socket.on('pacmanMove', dir => enemy.go(dir));
+
+  socket.on('ateCherry', q => {
+    question = q;
+    putQuestion(q);
+  });
+}
+
+function moveGhosts() {
+  for (let ghost of ghosts) ghost.go();
+
+  if (numberOfPlayers == 2 && me.id == adminNumber) {
+    const ghostsMovement = [];
+    for (let ghost of ghosts) {
+      ghostsMovement.push({ 
+        id: ghost.id,
+        movement: ghost.movement
+      });
+    }
+    socket.emit('ghostsMove', ghostsMovement);
+  }
 }

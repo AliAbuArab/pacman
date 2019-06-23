@@ -10,7 +10,6 @@ export default class Player {
     this.speed = 150;
     this.name = name;
     this.id = id;
-    this.question = '';
   }
 
   animate() {
