@@ -2,14 +2,14 @@ export default class Player {
   constructor(id, name, scene, position, initAngle) {
     this.sprite = scene.physics.add.sprite(position.x, position.y, 'atlas', 'pacman-eat.0').setScale(0.75);
     this.sprite.angle = initAngle;
-    this.position = position;
-    this.lifes = 3;
+    this.initPosition = position;
     this.prevMovement = Phaser.NONE;
-    this.scores = 0;
     this.initAngle = initAngle;
-    this.speed = 150;
     this.name = name;
     this.id = id;
+    this.lifes = 3;
+    this.scores = 0;
+    this.speed = 150;
   }
 
   animate() {
@@ -74,8 +74,8 @@ export default class Player {
   }
 
   restart() {
-    this.sprite.x = this.position.x;
-    this.sprite.y = this.position.y;
+    this.sprite.x = this.initPosition.x;
+    this.sprite.y = this.initPosition.y;
     this.lifes = 3;
     this.scores = 0;
     this.sprite.angle = this.initAngle;
@@ -94,7 +94,7 @@ export default class Player {
   setLifes(lifes) {
     this.lifes = lifes;
     document.getElementById('player' + this.id + '-lifes').innerHTML = this.lifes;
-    this.sprite.setPosition(this.position.x, this.position.y);
+    this.sprite.setPosition(this.initPosition.x, this.initPosition.y);
     this.prevMovement = Phaser.NONE;
     return this.lifes;
   }

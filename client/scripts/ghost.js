@@ -2,7 +2,7 @@ export default class Ghost {
   constructor(id, sprite, position, layer, map, scene) {
     this.id = id;
     this.sprite = sprite;
-    this.position = position;
+    this.initPosition = position;
     this.speed = 1;
     this.movement = Phaser.NONE;
     this.layer = layer;
@@ -84,11 +84,11 @@ export default class Ghost {
   }
 
   restart() {
-    this.sprite.x = this.position.x;
-    this.sprite.y = this.position.y;
+    this.sprite.x = this.initPosition.x;
+    this.sprite.y = this.initPosition.y;
     this.answer.text = '';
-    this.answer.x = this.position.x;
-    this.answer.y = this.position.y;
+    this.answer.x = this.initPosition.x;
+    this.answer.y = this.initPosition.y;
     this.enabled = true;
   }
 

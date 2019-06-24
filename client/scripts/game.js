@@ -21,6 +21,7 @@ const config = {
   }
 };
 const offset = 16;
+const lifes = 3;
 const questionTimeout = 17000;
 const adminNumber = 1;
 let map;
@@ -257,14 +258,15 @@ function addAnimations() {
 
 function restart() {
   me.restart();
-  document.getElementById('player1-lifes').innerHTML = me.lifes;
-  document.getElementById('player1-scores').innerHTML = me.scores;
+  document.getElementById('player1-lifes').innerHTML = lifes;
+  document.getElementById('player1-scores').innerHTML = 0;
   if (enemy) {
     enemy.restart();
-    document.getElementById('player2-lifes').innerHTML = enemy.lifes;
-    document.getElementById('player2-scores').innerHTML = enemy.scores;
+    document.getElementById('player2-lifes').innerHTML = lifes;
+    document.getElementById('player2-scores').innerHTML = 0;
   }
   for (let ghost of ghosts) ghost.restart();
+  candiesCnt = 0;
   map.filterObjects("Objects", value => {
     if (value.name == 'candy') 
       candiesGroup.add(scene.physics.add.sprite(value.x + offset, value.y + offset, 'candy').setScale(0.8));
@@ -317,10 +319,12 @@ function playerCollideWithGhost(player, ghost) {
       if (player == enemy) {
         alert(`${me.name} is the winner`);
         savePlayerScores(me);
+        location.href = '/';
       }
       else {
         alert(`${enemy.name} is the winner`);
         savePlayerScores(enemy);
+        location.href = '/';
       }
     } else {
       alert('Loser');

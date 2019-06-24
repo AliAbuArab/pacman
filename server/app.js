@@ -20,9 +20,7 @@ app.use(function(req, res, next) {
 });
 
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/../client/index.html'));
-});
+app.get('/', (req, res) => res.sendFile(path.join(__dirname + '/../client/index.html')));
 
 
 app.get('/questions', (req, res) => {
@@ -78,12 +76,11 @@ app.post('/signup', (req, res) => {
 app.post('/scores', (req, res) => {
   const { email, scores, enemy } = req.body;
   const players = JSON.parse(fs.readFileSync(path.join(__dirname + '/authentication.json')).toString());
-  for (let p of players) {
-    if (p.email == email) {
+  for (let p of players) 
+    if (p.email == email) 
       p.scores.push({ enemy, scores, date: new Date() });
-    }
-  }
   fs.writeFileSync(path.join(__dirname + '/authentication.json'), JSON.stringify(players));
+  io.to('game').emit('players', getPlayers());
   res.send({ status: 'success' });
 });
 
@@ -103,14 +100,10 @@ io.on('connection', socket => {
   
   socket.on('join', ({ email, name }, callback) => {
     const { error, player } = addPlayer({ id: socket.id, email, name });
-
     if (error) return callback(error);
-
     socket.join('game');
     socket.broadcast.to('game').emit('playerHasJoined', name);
-
     io.to('game').emit('players', getPlayers());
-
     callback();
   });
 
