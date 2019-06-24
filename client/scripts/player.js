@@ -5,7 +5,7 @@ export default class Player {
     this.position = position;
     this.lifes = 3;
     this.prevMovement = Phaser.NONE;
-    this.points = 0;
+    this.scores = 0;
     this.initAngle = initAngle;
     this.speed = 150;
     this.name = name;
@@ -77,18 +77,18 @@ export default class Player {
     this.sprite.x = this.position.x;
     this.sprite.y = this.position.y;
     this.lifes = 3;
-    this.points = 0;
+    this.scores = 0;
     this.sprite.angle = this.initAngle;
   }
 
   addPoint(point) {
-    this.points += point;
-    document.getElementById('player' + this.id + '-points').innerHTML = this.points;
+    this.scores += point;
+    document.getElementById('player' + this.id + '-scores').innerHTML = this.scores;
   }
 
   subPoint(point) {
-    this.points -= point;
-    document.getElementById('player' + this.id + '-points').innerHTML = this.points;
+    this.scores -= point;
+    document.getElementById('player' + this.id + '-scores').innerHTML = this.scores;
   }
 
   setLifes(lifes) {

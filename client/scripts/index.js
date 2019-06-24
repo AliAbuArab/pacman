@@ -1,17 +1,18 @@
+import postData from './post.js';
+
 const $email = document.getElementById('email');
 const $name = document.getElementById('name');
 const $password = document.getElementById('password');
-const $btnRet = document.querySelector('img[alt="return"]');
 const $btnSetting = document.querySelector('img[alt="setting"]');
 const $btnLogin = document.getElementById('btnLogin');
 const $btnSignup = document.getElementById('btnSignup');
 const $btnSignin = document.getElementById('btnSignin');
 const $btnCancel = document.getElementById('btnCancel');
-const $btnStart = document.getElementById('btnStart');
 const $btnSettings = document.getElementById('btnSettings');
 const $buttons = document.getElementsByTagName('button');
 const $btnOnePLayer = document.getElementById('btnOnePlayer');
 const $btnTwoPLayers = document.getElementById('btnTwoPlayers');
+const $btnHistory = document.getElementById('btnHistory');
 
 
 function mode(numOfPlayers) {
@@ -22,9 +23,13 @@ function mode(numOfPlayers) {
 }
 
 
-$btnSettings.addEventListener('click',() => {
-  window.location.href = '/settings.html';
-});
+$btnOnePLayer.addEventListener('click', () => mode(1));
+
+
+$btnTwoPLayers.addEventListener('click', () => mode(2));
+
+
+$btnSettings.addEventListener('click',() => window.location.href = '/settings.html');
 
 
 $btnLogin.addEventListener('click', () => {
@@ -37,6 +42,7 @@ $btnLogin.addEventListener('click', () => {
       hideAll();
       show($btnOnePLayer);
       show($btnTwoPLayers);
+      show($btnHistory);
       $name.value = data.name;
     }
   }).catch(error => alert(error));
@@ -56,7 +62,7 @@ $btnSignin.addEventListener('click', () => {
   const email = $email.value;
   const pass = $password.value;
   const name = $name.value;
-  postData('/signup', { email, pass, name }).then(data => {
+  postData('/signup', { email, pass, name, scores: [] }).then(data => {
     if (data.error) {
       alert(data.error);
     } else {
@@ -75,6 +81,11 @@ $btnCancel.addEventListener('click', () => {
   show($btnLogin);
   hide($btnCancel);
   hide($name);
+});
+
+$btnHistory.addEventListener('click', () => {
+  localStorage.setItem('email', $email.value);
+  location.href = '/history.html';
 });
 
 function show(el) {

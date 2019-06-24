@@ -61,17 +61,39 @@ app.post('/login', (req, res) => {
 
 
 app.post('/signup', (req, res) => {
-  const user = req.body;
-  const users = JSON.parse(fs.readFileSync(path.join(__dirname + '/authentication.json')).toString());
-  for (let u of users) {
-    if (u.email == user.email) {
+  const player = req.body;
+  const players = JSON.parse(fs.readFileSync(path.join(__dirname + '/authentication.json')).toString());
+  for (let p of players) {
+    if (p.email == player.email) {
       res.send({ error: 'user allready exists' });
       return;
     }
   }
-  users.push(user);
-  fs.writeFileSync(path.join(__dirname + '/authentication.json'), JSON.stringify(users))
+  players.push(player);
+  fs.writeFileSync(path.join(__dirname + '/authentication.json'), JSON.stringify(players));
   res.send({ status: 'success' });
+});
+
+
+app.post('/scores', (req, res) => {
+  const { email, scores, enemy } = req.body;
+  const players = JSON.parse(fs.readFileSync(path.join(__dirname + '/authentication.json')).toString());
+  for (let p of players) {
+    if (p.email == email) {
+      p.scores.push({ enemy, scores, date: new Date() });
+    }
+  }
+  fs.writeFileSync(path.join(__dirname + '/authentication.json'), JSON.stringify(players));
+  res.send({ status: 'success' });
+});
+
+
+app.get('/scores', (req, res) => {
+  const email = req.query.email;
+  const players = JSON.parse(fs.readFileSync(path.join(__dirname + '/authentication.json')).toString());
+  for (let p of players) 
+    if (p.email == email) 
+      res.send(p.scores);
 });
 
 

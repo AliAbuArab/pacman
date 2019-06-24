@@ -1,0 +1,35 @@
+body {
+  background-image: url('../images/background.jpg');
+  background-size: cover;
+}
+
+table {
+  text-align: left;
+  margin: 20px;
+  display: block;
+  border-bottom: 1px solid white;
+  min-height: 600px;
+}
+
+thead {
+  display: block;
+  border-bottom: 1px solid white;
+}
+
+#container {
+  border: 20px solid black;
+  border-radius: 5px;
+  min-width: 600px;
+  min-height: 600px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, .7);
+  color: white;
+  text-align: center;
+}
+
+td, th {
+  min-width: 60px;
+}

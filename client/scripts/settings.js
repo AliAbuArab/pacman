@@ -1,4 +1,5 @@
-const port = 8080;
+import postData from './post.js';
+
 let questions;
 const txtQuestion = document.getElementById('txtQuestion');
 const txtQuestionOption1 = document.getElementById('txtOption-1');
@@ -11,10 +12,12 @@ const txtNumOfQuestion = document.getElementById('numOfQuestion');
 const removeDiv = document.getElementById('divRemove');
 const $btnCancel = document.getElementById('btnCancel');
 
-fetch(`http://127.0.0.1:${port}/questions`).then((response) => { response.json().then(q => {
-  questions = q;
-  updateTable();
-});}); 
+fetch('/questions').then((response) => { 
+  response.json().then(q => {
+    questions = q;
+    updateTable();
+  });
+}); 
 
 function updateTable() {
   var table = document.getElementsByTagName('tbody')[0];
@@ -58,7 +61,7 @@ function addOrUpdateQuestion() {
   const option3 = txtQuestionOption3.value;
   const option4 = txtQuestionOption4.value;
   const answer = txtQuestionAnswer.value;
-  const point = txtQuestionPoint.value;
+  const point = parseInt(txtQuestionPoint.value);
   resetQuestionForm();
   const newQuestion = {
     question,

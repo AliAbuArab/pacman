@@ -51,6 +51,7 @@ body {
 #btnTwoPlayers, 
 #btnSignin,
 #btnCancel,
+#btnHistory,
 #name {
   display: none;
 }
@@ -84,8 +85,4 @@ thead {
 #btnAdd, #btnEdit, #btnRemove {
   margin-top: 0;
   display: inline-block;
-}
-
-img[alt="return"] {
-  display: none;
 }

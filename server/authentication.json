@@ -1,1 +1,16 @@
-[{"email":"eslam","pass":"123","name":"eslam"},{"email":"ali","pass":"123","name":"ali"}]
+[
+  {
+    "email": "ali",
+    "pass":"123",
+    "name":"ali",
+    "scores":[]
+  },
+  {
+    "email":"eslam",
+    "pass":"123",
+    "name":"eslam",
+    "scores":[
+      {"enemy":"ali","scores":0,"date":"2019-06-24T07:13:19.389Z"}
+    ]
+  }
+]

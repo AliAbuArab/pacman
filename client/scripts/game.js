@@ -1,5 +1,6 @@
 import Player from './player.js';
 import Ghost from './ghost.js';
+import postData from './post.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -257,11 +258,11 @@ function addAnimations() {
 function restart() {
   me.restart();
   document.getElementById('player1-lifes').innerHTML = me.lifes;
-  document.getElementById('player1-points').innerHTML = me.points;
+  document.getElementById('player1-scores').innerHTML = me.scores;
   if (enemy) {
     enemy.restart();
     document.getElementById('player2-lifes').innerHTML = enemy.lifes;
-    document.getElementById('player2-points').innerHTML = enemy.points;
+    document.getElementById('player2-scores').innerHTML = enemy.scores;
   }
   for (let ghost of ghosts) ghost.restart();
   map.filterObjects("Objects", value => {
@@ -281,7 +282,7 @@ function ateCherry() {
   question = questions[choosed];
   questions.splice(choosed, 1);
   putQuestion(question);
-  socket.emit('ateCherry', question);
+  if (enemy) socket.emit('ateCherry', question);
 }
 
 function putQuestion(question) {
@@ -295,17 +296,16 @@ function putQuestion(question) {
 }
 
 function playerCollideWithGhost(player, ghost) {
+  const ghostAns = ghost.answer.text;
   ghost.restart();
   if (ghost.isEaten && question) {
     const correctAns = question.options[question.answer];
-    const ghostAns = ghost.answer.text;
     if (correctAns == ghostAns) {
       player.addPoint(question.point);
       updateGhostsToNotEaten();
       $question.innerHTML = '';
     }
     else {
-      alert('wrong answer');
       player.subPoint(question.point);
       ghost.enabled = false;
     }
@@ -313,11 +313,18 @@ function playerCollideWithGhost(player, ghost) {
   }
   if (!player.setLifes(player.lifes - 1))
   {
-    if (player.id == 1) {
-      if (enemy) alert(`${enemy.name} is the winner`);
-      else alert('Loser');
+    if (enemy) {
+      if (player == enemy) {
+        alert(`${me.name} is the winner`);
+        savePlayerScores(me);
+      }
+      else {
+        alert(`${enemy.name} is the winner`);
+        savePlayerScores(enemy);
+      }
+    } else {
+      alert('Loser');
     }
-    else alert(`${me.name} is the winner`);
     restart();
   }
 }
@@ -326,7 +333,7 @@ function playerCollideWithCandy(player, candy) {
   candy.disableBody(true, true);
   player.addPoint(1);
   if (!--candiesCnt) {     
-    enemy && enemy.points > me.points ? alert(`${enemy.name} winner`) : alert(`${me.name} winner`);
+    enemy && enemy.scores > me.scores ? alert(`${enemy.name} winner`) : alert(`${me.name} winner`);
     restart();
   }
 }
@@ -420,4 +427,9 @@ function moveGhosts() {
     }
     socket.emit('ghostsMove', ghostsMovement);
   }
+}
+
+function savePlayerScores(player) {
+  if (player != me) return;
+  postData('/scores', { email, scores: me.scores, enemy: enemy.name });
 }
