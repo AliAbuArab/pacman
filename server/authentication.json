@@ -1,16 +1,1 @@
-[
-  {
-    "email": "ali",
-    "pass":"123",
-    "name":"ali",
-    "scores":[]
-  },
-  {
-    "email":"eslam",
-    "pass":"123",
-    "name":"eslam",
-    "scores":[
-      {"enemy":"ali","scores":0,"date":"2019-06-24T07:13:19.389Z"}
-    ]
-  }
-]
+[{"email":"ali","pass":"123","name":"ali","scores":[{"enemy":"eslam","scores":36,"date":"2019-06-24T09:14:07.233Z"}]},{"email":"eslam","pass":"123","name":"eslam","scores":[{"enemy":"ali","scores":0,"date":"2019-06-24T07:13:19.389Z"},{"enemy":"ali","scores":0,"date":"2019-06-24T09:11:46.748Z"}]}]
