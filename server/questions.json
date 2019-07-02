@@ -1,1 +1,101 @@
-[{"question":"What's my name","options":["Ali","Eslam","Anhar","Hamza"],"answer":"0","point":100},{"question":"Q2","options":["1","2","3","4"],"answer":"0","point":100}]
+[
+  {
+    "question": "Contract is output of",
+    "options": [
+      "Formalization",
+      "Closure",
+      "Startup",
+      "Proposal"
+    ],
+    "answer": "0",
+    "point": 300
+  },
+  {
+    "question": " Which activity is associated with quality control?",
+    "options": [
+      "Testing",
+      "Managing",
+      "Coding",
+      "Code Review"
+    ],
+    "answer": "0",
+    "point": 300
+  },
+  {
+    "question": "Knowledge is a ",
+    "options": [
+      "Iterative",
+      "Maintenance",
+      "Incremental",
+      "Waterfall"
+    ],
+    "answer": "1",
+    "point": 200
+  },
+  {
+    "question": "A quality measure of a specific desirable attribute of s\\w",
+    "options": [
+      "Defect",
+      "Plan",
+      "Metric",
+      "Base line"
+    ],
+    "answer": "2",
+    "point": 100
+  },
+  {
+    "question": "Which of the following is not a part of delivery management?",
+    "options": [
+      "Proposal",
+      "Analysis",
+      "Execution",
+      "Closure"
+    ],
+    "answer": "1",
+    "point": 200
+  },
+  {
+    "question": "Production support is the main feature of",
+    "options": [
+      "Waterfall",
+      "Incremental",
+      "Iterative",
+      "Maintenance"
+    ],
+    "answer": "3",
+    "point": 200
+  },
+  {
+    "question": "What do we measure using s/w metrics?",
+    "options": [
+      "Process",
+      "Product",
+      "Client",
+      "Process & product"
+    ],
+    "answer": "3",
+    "point": 200
+  },
+  {
+    "question": "Which one of the following is a quality assurance activity?",
+    "options": [
+      "Testing",
+      "Code review",
+      "Coding",
+      "Process audit"
+    ],
+    "answer": "3",
+    "point": 300
+  },
+  {
+    "question": "Delivery management runs in ----------- to sdlc",
+    "options": [
+      "Parallel",
+      "Cyclical",
+      "Series",
+      "Alternatively"
+    ],
+    "answer": "0",
+    "point": 100
+  }
+]

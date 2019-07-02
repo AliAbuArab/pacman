@@ -1,5 +1,3 @@
-import postData from './post.js';
-
 let questions;
 const txtQuestion = document.getElementById('txtQuestion');
 const txtQuestionOption1 = document.getElementById('txtOption-1');
