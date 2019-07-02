@@ -404,10 +404,13 @@ function initGameForTwo() {
   });
 
   socket.on('ghostsMove', ghostsMovement => {
-    for (let { id, movement } of ghostsMovement)
+    for (let { id, movement, position } of ghostsMovement)
       for (let ghost of ghosts)
-        if (ghost.id == id) 
+        if (ghost.id == id) {
           ghost.goTo(movement);
+          ghost.sprite.x = position.x;
+          ghost.sprite.y = position.y;
+        }
   });
 
   socket.on('pacmanMove', dir => enemy.go(dir));
@@ -426,7 +429,11 @@ function moveGhosts() {
     for (let ghost of ghosts) {
       ghostsMovement.push({ 
         id: ghost.id,
-        movement: ghost.movement
+        movement: ghost.movement,
+        position: { 
+          x: ghost.sprite.x, 
+          y: ghost.sprite.y 
+        }
       });
     }
     socket.emit('ghostsMove', ghostsMovement);
